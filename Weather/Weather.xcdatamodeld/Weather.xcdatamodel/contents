@@ -2,10 +2,11 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="13240" systemVersion="16G29" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Weather" representedClassName="Weather" syncable="YES" codeGenerationType="class">
         <attribute name="city" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="dateInsert" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="icon" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="temp" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Weather" positionX="-63" positionY="-18" width="128" height="90"/>
+        <element name="Weather" positionX="-63" positionY="-18" width="128" height="105"/>
     </elements>
 </model>

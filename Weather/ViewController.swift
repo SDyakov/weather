@@ -16,55 +16,57 @@ import Kingfisher
 
 class ViewController: UIViewController , CLLocationManagerDelegate{
     
-
-    @IBOutlet weak var imageView: UIImageView!
-    @IBOutlet weak var labelCity: UILabel!
-    @IBOutlet weak var labelTemp: UILabel!
+    var activityIndicator:UIActivityIndicatorView = UIActivityIndicatorView()
     
     
     let location = CLLocationManager()
+    let currentDate = NSDate()
     var coordinate = CurrentCoordinates(latitude: 0, longitude: 0, city:"", temp: 0, icon: "")
-    
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
         coordinate.latitude = locations[0].coordinate.latitude
         coordinate.longitude =  locations[0].coordinate.longitude
-        print (coordinate.latitude, coordinate.longitude)
         let url = "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=\(coordinate.longitude),\(coordinate.latitude)"
-        print(url)
          Alamofire.request(url).validate().responseObject { (response: DataResponse<CityJson>) in
-            debugPrint("All Response Info: \(response)")
             self.coordinate.city = response.result.value!.city!
             //Convert Cirilic on ACI
             let csCopy = CharacterSet(bitmapRepresentation: CharacterSet.urlPathAllowed.bitmapRepresentation)
             let escapedString = self.coordinate.city.addingPercentEncoding(withAllowedCharacters: csCopy)!
-           // let cityEnc = city.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
-            print(response.result.value!.city!)
             let url2 = "http://api.openweathermap.org/data/2.5/weather?q=\(escapedString)&appid=8754af81a8466413734c0a814cffc82f"
-            print(url2)
             if response.result.isSuccess {
                     Alamofire.request(url2).responseObject { (response: DataResponse<WheatherJson>) in
-                    debugPrint(response)
-                    print (response.result.value!.city!)
-                    print (response.result.value!.temp!)
                         self.coordinate.city = response.result.value!.city!
                         self.coordinate.temp = response.result.value!.temp!
                         self.coordinate.icon = response.result.value!.icon!
-                      //  print(self.coordinate.city,"  ",self.coordinate.temp,"   ",self.coordinate.icon)
+                        if response.result.isSuccess {
+                            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                            let contex = appDelegate.persistentContainer.viewContext
+                            let newWeather = NSEntityDescription.insertNewObject(forEntityName: "Weather", into: contex)
+                            newWeather.setValue(self.coordinate.city, forKey: "city")
+                            newWeather.setValue(self.coordinate.icon, forKey: "icon")
+                            newWeather.setValue(self.coordinate.temp, forKey: "temp")
+                            newWeather.setValue(self.currentDate, forKey: "dateInsert")
+                            do {
+                                try contex.save()
+                                print("Saved")
+                            
+                            }
+                            catch {
+                                
+                            }
+                            
+                        }
+                      //  self.getDataFromDataBase()
+                        self.performSegue(withIdentifier: "segue", sender: self )
+                        self.activityIndicator.stopAnimating()
                 }
             }
         }
     }
-    @IBAction func saveButton(_ sender: UIButton) {
-       print(insertDataBase(coordinate.city, coordinate.temp, coordinate.icon))
-    }
     
-    @IBAction func fetchButton(_ sender: UIButton) {
-        getDataFromDataBase()
-        loadImage()
-    }
-    func insertDataBase(_ city: String, _ temp : Double, _ icon: String) -> Bool {
+
+  /*  func insertDataBase(_ city: String, _ temp : Double, _ icon: String) -> Bool {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let contex = appDelegate.persistentContainer.viewContext
         let newWeather = NSEntityDescription.insertNewObject(forEntityName: "Weather", into: contex)
@@ -81,7 +83,7 @@ class ViewController: UIViewController , CLLocationManagerDelegate{
                return false
         }
        
-    }
+    }*/
     
     func getDataFromDataBase() {
         
@@ -94,21 +96,24 @@ class ViewController: UIViewController , CLLocationManagerDelegate{
         do {
              let result = try contex.fetch(request)
             let res = result.last as! NSManagedObject
-            print(res.value(forKey: "city")!,"   ",res.value(forKey: "icon")!,"   ",res.value(forKey: "temp")!)
-          //  print(result.first!)
-        }
+            print(res.value(forKey: "city")!,"   ",res.value(forKey: "icon")!,"   ",res.value(forKey: "temp")!,"   ",res.value(forKey: "dateInsert")!)
+            let dateLastInsert = res.value(forKey: "dateInsert") as! NSDate
+            print(dateLastInsert)
+            let inter = currentDate.timeIntervalSince(dateLastInsert as Date)
+            print(inter)
+}
         catch {
             
         }
-        
     }
     
-    func loadImage() {
-        let urlImage = "http://openweathermap.org/img/w/\(coordinate.icon).png"
-        let resours = ImageResource(downloadURL: URL(string: urlImage)!)
-        imageView.kf.setImage(with: resours)
-        labelCity.text = coordinate.city
-        labelTemp.text = String(coordinate.temp-273.15)
+   
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        let secondController = segue.destination as! SecondViewController
+        secondController.detailWeather.city = coordinate.city
+        secondController.detailWeather.icon = coordinate.icon
+        secondController.detailWeather.temp = coordinate.temp
     }
     
     func  updateLocation() {
@@ -128,8 +133,42 @@ class ViewController: UIViewController , CLLocationManagerDelegate{
     
     //@IBOutlet weak var mapView: MKMapView!
     override func viewDidLoad() {
+        
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let contex = appDelegate.persistentContainer.viewContext
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Weather")
+        var interval: TimeInterval = 0
+        request.returnsObjectsAsFaults = false
+        
+        do {
+            let result = try contex.fetch(request)
+            let res = result.last as! NSManagedObject
+            print(res.value(forKey: "city")!,"   ",res.value(forKey: "icon")!,"   ",res.value(forKey: "temp")!,"   ",res.value(forKey: "dateInsert")!)
+            coordinate.city = res.value(forKey: "city")! as! String
+            coordinate.icon = res.value(forKey: "icon")! as! String
+            coordinate.temp = res.value(forKey: "temp")! as! Double
+            let dateLastInsert = res.value(forKey: "dateInsert") as! NSDate
+            print(dateLastInsert)
+            interval = currentDate.timeIntervalSince(dateLastInsert as Date)
+            print(interval)
+        }
+        catch {
+            
+        }
+        if interval<6 {
+            self.performSegue(withIdentifier: "segue", sender: self )
+        }
+        else
+        {
+        activityIndicator.center = self.view.center
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.gray
+        view.addSubview(activityIndicator)
+        activityIndicator.startAnimating()
         super.viewDidLoad()
         updateLocation()
+        }
     }
     
     override func didReceiveMemoryWarning() {
