@@ -11,19 +11,16 @@ import UIKit
 class ErrorViewController: UIViewController {
 
     @IBOutlet weak var errorLabel: UILabel!
-    var error : String?
+    var error: String?
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        errorLabel.text = error!
         // Do any additional setup after loading the view.
     }
-
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
-
     /*
     // MARK: - Navigation
 

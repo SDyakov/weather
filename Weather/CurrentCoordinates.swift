@@ -9,10 +9,9 @@
 import Foundation
 
 struct CurrentCoordinates {
-    var latitude : Double
-    var longitude : Double
+    var latitude: Double
+    var longitude: Double
     var city: String = ""
     var temp: Double = 0
     var icon: String = ""
 }
-

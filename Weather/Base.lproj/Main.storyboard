@@ -17,15 +17,19 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Error" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1Ay-bA-95Y">
-                                <rect key="frame" x="75" y="204" width="170" height="161"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Error" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="6" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1Ay-bA-95Y">
+                                <rect key="frame" x="20" y="522.5" width="280" height="25.5"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="21"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="1Ay-bA-95Y" firstAttribute="leading" secondItem="FWy-QD-zGG" secondAttribute="leading" constant="20" id="FqX-jn-TRy"/>
+                            <constraint firstItem="FWy-QD-zGG" firstAttribute="bottom" secondItem="1Ay-bA-95Y" secondAttribute="bottom" constant="20" id="XiG-Es-huy"/>
+                            <constraint firstItem="FWy-QD-zGG" firstAttribute="trailing" secondItem="1Ay-bA-95Y" secondAttribute="trailing" constant="20" id="ok8-Iw-Aki"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="FWy-QD-zGG"/>
                     </view>
                     <connections>
@@ -83,14 +87,23 @@
                                     <constraint firstAttribute="width" constant="100" id="eU9-xu-io0"/>
                                 </constraints>
                             </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="p1o-ib-jOu" customClass="StatusButton" customModule="Weather" customModuleProvider="target">
+                                <rect key="frame" x="274" y="80" width="30" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="30" id="82c-pL-dx1"/>
+                                    <constraint firstAttribute="height" constant="30" id="kzL-1Y-UWV"/>
+                                </constraints>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="zDF-J7-JDA" firstAttribute="centerX" secondItem="WJm-67-TIc" secondAttribute="centerX" id="Dzk-wp-S6I"/>
+                            <constraint firstItem="Roc-98-Zto" firstAttribute="trailing" secondItem="p1o-ib-jOu" secondAttribute="trailing" constant="16" id="Jnz-Hd-j0y"/>
                             <constraint firstItem="zDF-J7-JDA" firstAttribute="centerY" secondItem="WJm-67-TIc" secondAttribute="centerY" id="LYu-2T-smk"/>
                             <constraint firstItem="8Hm-ye-f7U" firstAttribute="leading" secondItem="Roc-98-Zto" secondAttribute="leading" constant="16" id="SG6-8A-Hxo"/>
                             <constraint firstItem="Roc-98-Zto" firstAttribute="trailing" secondItem="8Hm-ye-f7U" secondAttribute="trailing" constant="16" id="bQa-y6-z7g"/>
                             <constraint firstItem="Roc-98-Zto" firstAttribute="trailing" secondItem="vfB-EM-0Pt" secondAttribute="trailing" constant="16" id="bax-Mh-NWL"/>
+                            <constraint firstItem="p1o-ib-jOu" firstAttribute="top" secondItem="Roc-98-Zto" secondAttribute="top" constant="16" id="d2i-rO-RZg"/>
                             <constraint firstItem="vfB-EM-0Pt" firstAttribute="leading" secondItem="Roc-98-Zto" secondAttribute="leading" constant="16" id="n3I-8Y-2xP"/>
                             <constraint firstItem="8Hm-ye-f7U" firstAttribute="top" secondItem="zDF-J7-JDA" secondAttribute="bottom" constant="15" id="nVp-O2-2kE"/>
                             <constraint firstItem="zDF-J7-JDA" firstAttribute="top" secondItem="vfB-EM-0Pt" secondAttribute="bottom" constant="20" id="u3U-0Q-Qsc"/>
@@ -100,6 +113,7 @@
                     <connections>
                         <outlet property="cityLabel" destination="vfB-EM-0Pt" id="zAO-PE-6HB"/>
                         <outlet property="tempLabel" destination="8Hm-ye-f7U" id="dZv-Qa-6sG"/>
+                        <outlet property="test" destination="p1o-ib-jOu" id="ECh-TD-JFE"/>
                         <outlet property="weatherImage" destination="zDF-J7-JDA" id="D74-xX-ZE0"/>
                     </connections>
                 </viewController>
