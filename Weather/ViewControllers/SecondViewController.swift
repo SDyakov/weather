@@ -15,7 +15,7 @@ class SecondViewController: UIViewController {
     @IBOutlet weak var weatherImage: UIImageView!
     @IBOutlet weak var tempLabel: UILabel!
     var statusOnline: Bool = false
-    var detailWeather = CurrentCoordinates(latitude: 0, longitude: 0, city: "", temp: 0, icon: "")
+    var detailWeather = WeatherModel()
     override func viewDidLoad() {
         super.viewDidLoad()
         self.cityLabel.text = detailWeather.city

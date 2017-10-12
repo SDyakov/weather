@@ -9,7 +9,7 @@
 import Foundation
 import ObjectMapper
 
-class WheatherJson: Mappable {
+class WeatherJson: Mappable {
     var city: String?
     var temp: Double?
     var icon: String?

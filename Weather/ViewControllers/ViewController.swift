@@ -16,38 +16,36 @@ import Kingfisher
 import SystemConfiguration
 import Foundation
 
-class ViewController: UIViewController, CLLocationManagerDelegate {    
+class ViewController: UIViewController, CLLocationManagerDelegate {
     var activityIndicator: UIActivityIndicatorView = UIActivityIndicatorView()
-    let location = CLLocationManager()
+    let locationManager = CLLocationManager()
     var infoError: String = ""
-    var coordinate = CurrentCoordinates(latitude: 0, longitude: 0, city: "", temp: 0, icon: "")
+    var weatherModel = WeatherModel()
     var status: Bool = false
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        location.stopUpdatingLocation()
-        coordinate.latitude = locations[0].coordinate.latitude
-        coordinate.longitude =  locations[0].coordinate.longitude
-        let url = "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=\(coordinate.longitude),\(coordinate.latitude)"
+        locationManager.stopUpdatingLocation()
+        weatherModel.latitude = locations[0].coordinate.latitude
+        weatherModel.longitude =  locations[0].coordinate.longitude
+        let url = "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=\(weatherModel.longitude),\(weatherModel.latitude)"
         if isInternetAvailable() == true {
          Alamofire.request(url).validate().responseObject { (response: DataResponse<CityJson>) in
-            //debugPrint(response)
             if response.result.isSuccess {
-            self.coordinate.city = response.result.value!.city!
-            //Convert Cirilic on ACI
-            let csCopy = CharacterSet(bitmapRepresentation: CharacterSet.urlPathAllowed.bitmapRepresentation)
-            let escapedString = self.coordinate.city.addingPercentEncoding(withAllowedCharacters: csCopy)!
-                let url2 = "http://api.openweathermap.org/data/2.5/weather?q=\(escapedString)&appid=8754af81a8466413734c0a814cffc82f"
-                    Alamofire.request(url2).responseObject { (response: DataResponse<WheatherJson>) in
+            self.weatherModel.city = response.result.value!.city!
+            let csRuleURLPathAllow = CharacterSet(bitmapRepresentation: CharacterSet.urlPathAllowed.bitmapRepresentation)
+            let convertStringCity = self.weatherModel.city.addingPercentEncoding(withAllowedCharacters: csRuleURLPathAllow)!
+                let url2 = "http://api.openweathermap.org/data/2.5/weather?q=\(convertStringCity)&appid=8754af81a8466413734c0a814cffc82f"
+                    Alamofire.request(url2).responseObject { (response: DataResponse<WeatherJson>) in
                         if response.result.isSuccess {
-                        self.coordinate.city = response.result.value!.city!
-                        self.coordinate.temp = response.result.value!.temp!
-                        self.coordinate.icon = response.result.value!.icon!
+                        self.weatherModel.city = response.result.value!.city!
+                        self.weatherModel.temp = response.result.value!.temp!
+                        self.weatherModel.icon = response.result.value!.icon!
                         let appDelegate = (UIApplication.shared.delegate as? AppDelegate)!
                         let contex = appDelegate.persistentContainer.viewContext
                         let newWeather = NSEntityDescription.insertNewObject(forEntityName: "Weather", into: contex)
                         let currentDate = NSDate()
-                        newWeather.setValue(self.coordinate.city, forKey: "city")
-                        newWeather.setValue(self.coordinate.icon, forKey: "icon")
-                        newWeather.setValue(self.coordinate.temp, forKey: "temp")
+                        newWeather.setValue(self.weatherModel.city, forKey: "city")
+                        newWeather.setValue(self.weatherModel.icon, forKey: "icon")
+                        newWeather.setValue(self.weatherModel.temp, forKey: "temp")
                         newWeather.setValue(currentDate, forKey: "dateInsert")
                             do {
                                 try contex.save()
@@ -57,13 +55,12 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
                             self.status = true
                             self.performSegue(withIdentifier: "segue", sender: self )
                             self.activityIndicator.stopAnimating()
-                              } else {
-                           self.infoError = "Невозможно получить данные о погоде"
-                            self.performSegue(withIdentifier: "errorSegue", sender: self)
+                      } else {
+                         self.infoError = "Невозможно получить данные о погоде"
+                         self.performSegue(withIdentifier: "errorSegue", sender: self)
                         }
                   }
-            }
-            if response.result.isFailure {
+            } else {
                 self.infoError = "Невозможно определить город."
                 self.performSegue(withIdentifier: "errorSegue", sender: self)
             }
@@ -76,9 +73,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "segue" {
             let secondController = (segue.destination as? SecondViewController)!
-            secondController.detailWeather.city = coordinate.city
-            secondController.detailWeather.icon = coordinate.icon
-            secondController.detailWeather.temp = coordinate.temp
+            secondController.detailWeather.city = weatherModel.city
+            secondController.detailWeather.icon = weatherModel.icon
+            secondController.detailWeather.temp = weatherModel.temp
             secondController.statusOnline = status
         }
         if segue.identifier == "errorSegue" {
@@ -97,37 +94,35 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             let result = try contex.fetch(request)
             let res = result.last as? NSManagedObject
             if res != nil {
-            coordinate.city = (res?.value(forKey: "city") as? String)!
-            coordinate.icon = (res?.value(forKey: "icon") as? String)!
-            coordinate.temp = (res?.value(forKey: "temp") as? Double)!
+            weatherModel.city = (res?.value(forKey: "city") as? String)!
+            weatherModel.icon = (res?.value(forKey: "icon") as? String)!
+            weatherModel.temp = (res?.value(forKey: "temp") as? Double)!
             let dateLastInsert = (res?.value(forKey: "dateInsert") as? NSDate)!
-            print(dateLastInsert)
             let currentDate = NSDate()
             interval = currentDate.timeIntervalSince(dateLastInsert as Date)
-            print(interval)
             } else {
                 interval = 600
             }
             } catch {
-                }
+            }
         if interval<20 {
             self.performSegue(withIdentifier: "segue", sender: self )
         } else {
-            print(CLAuthorizationStatus.self)
+            //print(CLAuthorizationStatus.self)
             activityIndicator.center = self.view.center
             activityIndicator.hidesWhenStopped = true
             activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.gray
             view.addSubview(activityIndicator)
             activityIndicator.startAnimating()
-            location.requestWhenInUseAuthorization()
-            location.delegate = self
-            location.desiredAccuracy = kCLLocationAccuracyBest
-            location.startUpdatingLocation()
+            locationManager.requestWhenInUseAuthorization()
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyBest
+            locationManager.startUpdatingLocation()
         }
     }
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
        if status != CLAuthorizationStatus.denied {
-            location.startUpdatingLocation()
+            locationManager.startUpdatingLocation()
         } else {
             infoError = "In the settings, enable the use of geolocation. Restart the application."
             self.performSegue(withIdentifier: "errorSegue", sender: self)
