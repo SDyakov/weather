@@ -49,19 +49,18 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
                         newWeather.setValue(currentDate, forKey: "dateInsert")
                             do {
                                 try contex.save()
-                                print("Saved")
                                 } catch {
-                            }
+                                  }
                             self.status = true
                             self.performSegue(withIdentifier: "segue", sender: self )
                             self.activityIndicator.stopAnimating()
-                      } else {
-                         self.infoError = "Невозможно получить данные о погоде"
-                         self.performSegue(withIdentifier: "errorSegue", sender: self)
-                        }
+                       } else {
+                            self.infoError = "Impossible to get weather data."
+                            self.performSegue(withIdentifier: "errorSegue", sender: self)
+                       }
                   }
             } else {
-                self.infoError = "Невозможно определить город."
+                self.infoError = "Can't define city."
                 self.performSegue(withIdentifier: "errorSegue", sender: self)
             }
         }
@@ -128,7 +127,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             self.performSegue(withIdentifier: "errorSegue", sender: self)
         }
     }
-    //@IBOutlet weak var mapView: MKMapView!
     override func viewDidLoad() {
         super.viewDidLoad()
     }

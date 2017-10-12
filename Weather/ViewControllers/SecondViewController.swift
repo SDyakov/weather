@@ -10,7 +10,7 @@ import UIKit
 import Kingfisher
 
 class SecondViewController: UIViewController {
-    @IBOutlet weak var test: StatusButton!
+    @IBOutlet weak var test: StatusButton! 
     @IBOutlet weak var cityLabel: UILabel!
     @IBOutlet weak var weatherImage: UIImageView!
     @IBOutlet weak var tempLabel: UILabel!
