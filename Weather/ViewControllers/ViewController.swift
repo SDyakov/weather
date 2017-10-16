@@ -22,44 +22,34 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     var infoError: String = ""
     var weatherModel = WeatherModel()
     var status: Bool = false
+    var interval: TimeInterval = 0
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         locationManager.stopUpdatingLocation()
         weatherModel.latitude = locations[0].coordinate.latitude
         weatherModel.longitude =  locations[0].coordinate.longitude
-        let url = "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=\(weatherModel.longitude),\(weatherModel.latitude)"
+        let urlGeocoder = "\(weatherModel.prefixGeocoder)\(weatherModel.longitude),\(weatherModel.latitude)"
         if isInternetAvailable() == true {
-         Alamofire.request(url).validate().responseObject { (response: DataResponse<CityJson>) in
+         Alamofire.request(urlGeocoder).validate().responseObject { (response: DataResponse<CityJson>) in
             if response.result.isSuccess {
             self.weatherModel.city = response.result.value!.city!
             let csRuleURLPathAllow = CharacterSet(bitmapRepresentation: CharacterSet.urlPathAllowed.bitmapRepresentation)
             let convertStringCity = self.weatherModel.city.addingPercentEncoding(withAllowedCharacters: csRuleURLPathAllow)!
-                let url2 = "http://api.openweathermap.org/data/2.5/weather?q=\(convertStringCity)&appid=8754af81a8466413734c0a814cffc82f"
-                    Alamofire.request(url2).responseObject { (response: DataResponse<WeatherJson>) in
-                        if response.result.isSuccess {
+            let urlWeatherService = "\(self.weatherModel.prefixWeatherService)\(convertStringCity)\(self.weatherModel.postfixWeatherService)"
+                Alamofire.request(urlWeatherService).responseObject { (response: DataResponse<WeatherJson>) in
+                    if response.result.isSuccess {
                         self.weatherModel.city = response.result.value!.city!
                         self.weatherModel.temp = response.result.value!.temp!
                         self.weatherModel.icon = response.result.value!.icon!
-                        let appDelegate = (UIApplication.shared.delegate as? AppDelegate)!
-                        let contex = appDelegate.persistentContainer.viewContext
-                        let newWeather = NSEntityDescription.insertNewObject(forEntityName: "Weather", into: contex)
-                        let currentDate = NSDate()
-                        newWeather.setValue(self.weatherModel.city, forKey: "city")
-                        newWeather.setValue(self.weatherModel.icon, forKey: "icon")
-                        newWeather.setValue(self.weatherModel.temp, forKey: "temp")
-                        newWeather.setValue(currentDate, forKey: "dateInsert")
-                            do {
-                                try contex.save()
-                                } catch {
-                                  }
-                            self.status = true
-                            self.performSegue(withIdentifier: "segue", sender: self )
-                            self.activityIndicator.stopAnimating()
-                       } else {
-                            self.infoError = "Impossible to get weather data."
-                            self.performSegue(withIdentifier: "errorSegue", sender: self)
-                       }
-                  }
-            } else {
+                        self.addToDataBase()
+                        self.status = true
+                        self.performSegue(withIdentifier: "segue", sender: self )
+                        self.activityIndicator.stopAnimating()
+                   } else {
+                        self.infoError = "Impossible to get weather data."
+                        self.performSegue(withIdentifier: "errorSegue", sender: self)
+                   }
+              }
+           } else {
                 self.infoError = "Can't define city."
                 self.performSegue(withIdentifier: "errorSegue", sender: self)
             }
@@ -84,30 +74,10 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     }
     override func viewDidAppear(_ animated: Bool) {
         self.status = false
-        let appDelegate = (UIApplication.shared.delegate as? AppDelegate)!
-        let contex = appDelegate.persistentContainer.viewContext
-        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Weather")
-        var interval: TimeInterval = 0
-        request.returnsObjectsAsFaults = false
-        do {
-            let result = try contex.fetch(request)
-            let res = result.last as? NSManagedObject
-            if res != nil {
-            weatherModel.city = (res?.value(forKey: "city") as? String)!
-            weatherModel.icon = (res?.value(forKey: "icon") as? String)!
-            weatherModel.temp = (res?.value(forKey: "temp") as? Double)!
-            let dateLastInsert = (res?.value(forKey: "dateInsert") as? NSDate)!
-            let currentDate = NSDate()
-            interval = currentDate.timeIntervalSince(dateLastInsert as Date)
-            } else {
-                interval = 600
-            }
-            } catch {
-            }
-        if interval<20 {
+        getFromDataBase()
+        if self.interval<600 {
             self.performSegue(withIdentifier: "segue", sender: self )
         } else {
-            //print(CLAuthorizationStatus.self)
             activityIndicator.center = self.view.center
             activityIndicator.hidesWhenStopped = true
             activityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.gray
@@ -133,6 +103,43 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    func addToDataBase() {
+        let appDelegate = (UIApplication.shared.delegate as? AppDelegate)!
+        let contex = appDelegate.persistentContainer.viewContext
+        let newWeather = NSEntityDescription.insertNewObject(forEntityName: "Weather", into: contex)
+        let currentDate = NSDate()
+        newWeather.setValue(self.weatherModel.city, forKey: "city")
+        newWeather.setValue(self.weatherModel.icon, forKey: "icon")
+        newWeather.setValue(self.weatherModel.temp, forKey: "temp")
+        newWeather.setValue(currentDate, forKey: "dateInsert")
+        do {
+            try contex.save()
+        } catch {
+            self.infoError = "Impossible to save weather data."
+            self.performSegue(withIdentifier: "errorSegue", sender: self)
+        }
+    }
+    func getFromDataBase() {
+        let appDelegate = (UIApplication.shared.delegate as? AppDelegate)!
+        let contex = appDelegate.persistentContainer.viewContext
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Weather")
+        request.returnsObjectsAsFaults = false
+        do {
+            let result = try contex.fetch(request)
+            let res = result.last as? NSManagedObject
+            if res != nil {
+                weatherModel.city = (res?.value(forKey: "city") as? String)!
+                weatherModel.icon = (res?.value(forKey: "icon") as? String)!
+                weatherModel.temp = (res?.value(forKey: "temp") as? Double)!
+                let dateLastInsert = (res?.value(forKey: "dateInsert") as? NSDate)!
+                let currentDate = NSDate()
+                self.interval = currentDate.timeIntervalSince(dateLastInsert as Date)
+            } else {
+                self.interval = 600
+            }
+        } catch {
+        }
     }
     func isInternetAvailable() -> Bool {
         var zeroAddress = sockaddr_in()
