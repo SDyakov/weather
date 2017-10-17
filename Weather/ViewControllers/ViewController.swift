@@ -104,6 +104,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    //Fuction
     func addToDataBase() {
         let appDelegate = (UIApplication.shared.delegate as? AppDelegate)!
         let contex = appDelegate.persistentContainer.viewContext
