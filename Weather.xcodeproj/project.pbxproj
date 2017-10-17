@@ -131,8 +131,8 @@
 		847B57A71F8F5D5500B14A66 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				842C15A71F8909F90083371D /* CityJson.swift */,
 				842C15991F89031E0083371D /* WeatherModel.swift */,
+				842C15A71F8909F90083371D /* CityJson.swift */,
 				842C15A91F8925370083371D /* WeatherJson.swift */,
 			);
 			path = Model;
