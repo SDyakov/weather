@@ -80,22 +80,22 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="City" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vfB-EM-0Pt">
-                                <rect key="frame" x="16" y="202" width="288" height="37"/>
+                                <rect key="frame" x="16" y="207" width="288" height="37"/>
                                 <fontDescription key="fontDescription" type="italicSystem" pointSize="31"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Temp" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8Hm-ye-f7U">
-                                <rect key="frame" x="16" y="324" width="288" height="43"/>
+                                <rect key="frame" x="16" y="319" width="288" height="43"/>
                                 <fontDescription key="fontDescription" type="system" weight="thin" pointSize="36"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="zDF-J7-JDA">
-                                <rect key="frame" x="110" y="259" width="100" height="50"/>
+                                <rect key="frame" x="120" y="264" width="80" height="40"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="ZQ1-tM-13y"/>
-                                    <constraint firstAttribute="width" constant="100" id="eU9-xu-io0"/>
+                                    <constraint firstAttribute="height" constant="40" id="ZQ1-tM-13y"/>
+                                    <constraint firstAttribute="width" constant="80" id="eU9-xu-io0"/>
                                 </constraints>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="p1o-ib-jOu" customClass="StatusButton" customModule="Weather" customModuleProvider="target">
@@ -152,6 +152,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="Splat" width="400" height="600"/>
+        <image name="Splat" width="100" height="150"/>
     </resources>
 </document>
